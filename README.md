@@ -270,7 +270,7 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 
 **1. How would you handle duplicate events?**
 
-- To manage duplicates efficiently and process streaming data in real-time, we use AWS Kinesis Data Stream, AWS Lambda, and DynamoDB. 
+- To manage duplicates efficiently and process streaming data in real-time, I use AWS Kinesis Data Stream, AWS Lambda, and DynamoDB. 
 - The Kinesis stream captures incoming data, and the Lambda function processes each record, checking for duplicates using DynamoDB.
 - This approach ensures only unique data is stored in S3, with DynamoDB acting as a cache to filter duplicates.
 
@@ -279,8 +279,11 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 ---
 
 **2. How would you partition the data to ensure good querying performance and scalability?**
+I have used the same Partitioning (event_type, sub_event_type, event_date (year,month,day)) on both raw and processed file on two reasons
+1. Raw layer - Easy to replicate specific events on specific days if needed or replay entire state.
+2. Processed layer - Assuming the downstream tasks mostly relay on event types, sub event types and aggregated data (lowest frequency is day).
 
-##### Detailed Partitioning Strategy
+#### Detailed Partitioning Strategy
 
 #### Amazon S3 Partitioning
 Amazon S3 serves as the primary storage layer in  data lake. Proper partitioning of data stored in S3 can significantly enhance query performance and scalability.
@@ -339,11 +342,40 @@ AWS Glue Crawler will automatically recognize these partitions and add them to t
 
 **3. What format would you use to store the data?**
 
+I have used two formats, Json with compression and parquet format (Both are partitioned for better query performance )
+- **Raw Data Format**:
+     Raw data is stored in JSON format and compressed to save storage space and preserve the original state of the data.
+    - **Purpose**: This format is ideal for preserving the original data for replication or reprocessing from scratch if needed. Compression helps in reducing storage costs while maintaining the integrity of the raw data.
+    - **Partitioning**: Data is partitioned by event type, subtype, and date (year, month, day) to facilitate easy access and management.
+
+- **Processed Data Format**: Processed data is stored in Parquet format, which is a columnar storage file format optimized for performance and storage efficiency.
+    - **Purpose**: Parquet is compatible with Apache Spark, making it ideal for analytics and data processing tasks. It allows efficient querying and data retrieval.
+    - **Partitioning**: Similar to the raw data, the processed data is also partitioned by event type, subtype, and date (year, month, day) to optimize query performance and scalability. 
+
+### Benefits of Using These Formats
+
+- **JSON with Compression**:
+  - **Preservation**: Maintains the original data state, essential for accurate replication or reprocessing.
+  - **Efficiency**: Compression reduces storage costs and speeds up data transfer.
+
+- **Parquet with Partitions**:
+  - **Compatibility**: Works seamlessly with Spark, enhancing data processing capabilities.
+  - **Performance**: Columnar storage format improves query performance, especially for analytical workloads.
+  - **Scalability**: Partitioning by event type, subtype, and date ensures efficient data management and scalability.
 ---
 
 **4. How would you test the different components of your proposed architecture?**
+    
+I will test individual component by mocking data and validating results individually and at the same time, running E2E flow and validate final results.This kind of testing helps to test the **functionality** and **connectivity**.        
 
----
+- **Data Ingestion (Kinesis Data Streams)**: Simulate various event types and volumes to test ingestion and ensure data flows correctly from sources.
+- **Real-time Processing (AWS Lambda)**: Test Lambda functions for deduplication and transformation using mock events, and validate integration with DynamoDB.
+- **Data Storage (Amazon S3)**: Test compression and partitioning of raw JSON files, and verify correct storage and partitioning of processed Parquet files.
+- **Metadata Management (AWS Glue Crawler and Data Catalog)**: Run Glue Crawlers to validate schema detection and ensure accurate metadata in the Data Catalog.
+- **Data Processing (AWS Glue Jobs)**: Test ETL scripts for data transformation, run complete Glue Jobs on test datasets, and verify processed data storage.
+- **Advanced Analytics (Databricks with Apache Spark)**: Test Spark jobs for data processing and analytics, validate batch and streaming outputs, and ensure data flow to Databricks.
+- **Monitoring and Logging (Amazon CloudWatch)**: Test creation of metrics and logs, validate alert configurations, and ensure logs and metrics are correctly sent to CloudWatch.
+- **Event Replay (AWS Lambda)**: Test Lambda functions for event replay, validate retrieval and reprocessing of historical data from S3, and ensure the end-to-end replay process works.
 
 **5. How would you ensure the architecture deployed can be replicable across environments?**
 
@@ -351,9 +383,32 @@ AWS Glue Crawler will automatically recognize these partitions and add them to t
 
 **6. Would your proposed solution still be the same if the amount of events is 1000 times smaller or bigger?**
 
+Yes, the proposed solution would still be effective if the amount of events is 1000 times smaller or bigger. This is because
+
+- **Pay-as-You-Use Services**: The architecture leverages AWS services that charge based on usage, ensuring cost-efficiency and scalability.
+- **Automatic Scaling**: Services like Kinesis, Lambda, and S3 automatically scale up or down based on the volume of data, maintaining performance without manual intervention.
+- **Cost Efficiency**: By using services that only charge for the compute and storage resources used, the solution remains economical regardless of data volume.
+- **Flexibility**: The architecture is designed to handle varying data volumes efficiently, ensuring robust performance whether dealing with smaller or larger amounts of events.
+
 ---
 
 **7. Would your proposed solution still be the same if adding fields / transforming the data is no longer
 needed?**
+
+Yes, the proposed solution would still be effective even if adding fields or transforming the data is no longer needed. Here’s why
+
+- **Modular Design**: The architecture is modular, each component (ingestion, storage, processing) can function independently. If transformation is not needed, the relevant Lambda functions and Glue Jobs can be bypassed or simplified without affecting the rest of the system.
+- **Direct Storage**: Data can be ingested directly into Amazon S3 via Kinesis Firehose without intermediate transformation steps, ensuring efficient data capture and storage.
+- **Scalable Storage**: Amazon S3 will continue to provide scalable, cost-effective storage for raw data.
+- **Efficient Querying**: The partitioning strategy and use of Parquet format for processed data can be maintained for efficient querying, even if no transformation is applied.
+- **Pay-as-You-Use**: The pay-as-you-use model for AWS services ensures that you only pay for the resources you actually use, keeping costs low if certain processing steps are skipped.
+
+### Adjusted Data Flow Without Transformation
+1. **Direct Storage**: Data is stored directly in Amazon S3 (raw JSON files, compressed if needed).
+2. **Metadata Management**: Glue Crawler updates the Data Catalog with schema information from the raw data.
+3. **Advanced Analytics**: Databricks or other analytics tools can directly query and analyze the raw data stored in S3.
+
+Though It required some code changes/config changes in downstream if upstream schema changes or transformations changes but overall architecture design remains same and works efficiently
+
 
 ---
