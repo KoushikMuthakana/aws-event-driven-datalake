@@ -1,15 +1,18 @@
 # AWS Event-Driven Data Lake
 
 ## Overview
-This repository contains the code and infrastructure to create a robust, scalable data lake using AWS services. The system is designed to ingest, process, and store events coming from an Amazon Kinesis Data Stream. The architecture ensures high performance, scalability, and efficient querying capabilities, making it ideal for processing up to 1 million events per hour.
+This repository contains the code and infrastructure to create a robust, scalable data lake using AWS services. The system is designed to ingest, process, and store events coming from an Amazon Kinesis Data Stream. The architecture ensures high performance, scalability, and efficient querying capabilities, making it ideal for processing both large and small amounts of data.
 
 ### Features
-- Scalable Event Ingestion: Utilize Amazon Kinesis Data Streams to handle large volumes of incoming events.
-- Real-time Processing: AWS Lambda functions for real-time deduplication and data transformation.
-- Efficient Storage: Store transformed data in Amazon S3 using efficient columnar formats like Apache Parquet.
-- Partitioned Data: Organize data in S3 partitions for optimized querying and scalability.
-- Data Lake: Use Databricks for advanced analytics and Business Intelligence (BI) reporting.
-- Infrastructure as Code: Deploy infrastructure using AWS CloudFormation or Terraform for consistent and repeatable environments.
+
+- **Processes Data in Real-Time**: Deduplicates and transforms incoming data immediately to ensure accuracy and relevance.
+- **Stores Data Efficiently**: Saves raw and processed data in a highly efficient format, optimizing storage space and retrieval speed.
+- **Automates Metadata Management**: Automatically discovers and catalogs new data, maintaining up-to-date schemas and metadata.
+- **Handles Incremental Loads**: Processes and transforms new data incrementally, ensuring the data store is always current.
+- **Supports Advanced Analytics**: Enables both batch and streaming data processing for comprehensive analytics and business intelligence reporting.
+- **Ensures Consistency and Repeatability**: Manages the entire architecture with automated, consistent deployment and updates.
+- **Monitors System Health**: Continuously monitors the performance and health of the data pipeline, providing metrics and logs for effective management.
+- **Facilitates Data Recovery**: Provides capabilities to replay events for data recovery and reprocessing as needed.
 
 ## Architecture
 
@@ -26,19 +29,20 @@ This repository contains the code and infrastructure to create a robust, scalabl
 3. **Amazon CloudWatch**: Monitors the performance and health of the streaming data pipelines.
 4. **AWS Lambda**: Processes incoming data, detects duplicates, and handles data transformation.
 5. **Amazon DynamoDB**: Stores unique identifiers for duplicate detection and primary key management.
-6. **Amazon Kinesis Firehose**: Delivers processed and transformed data to Amazon S3 in compressed raw JSON format, partitioned by event type,event_subtype and (Year/Month/day).
+6. **Amazon Kinesis Firehose**: Delivers raw data to Amazon S3 in compressed raw JSON format, partitioned by event type,event_subtype and (Year/Month/day).
 7. **Amazon S3 (Compressed Raw JSON Files)**: Serves as the data lake storage, storing raw JSON files in a compressed format for efficient storage and retrieval.
 8. **AWS Glue Crawler**: Scans the raw JSON files in S3 and updates the Glue Data Catalog with table definitions.
 9. **AWS Glue Data Catalog**: Central metadata repository for data discovery and search.
 10. **AWS Glue Job (Apache Spark)**: Transforms raw JSON data into aggregated, partitioned Parquet files, managing incremental loads.
-11. **Amazon S3 (Processed Data Storage)**: Stores the transformed and aggregated Parquet files.
+11. **Amazon S3 (Processed Data Storage)**: Stores the transformed and aggregated Parquet files in partitions.
 12. **Databricks with Apache Spark**: Processes both batch and streaming data from Amazon S3 for advanced analytics.
 13. **Visualization and ML/AI**: Utilizes the processed data for generating insights through visualization tools and machine learning models.
 14. **Events Replay (AWS Lambda)**: Replays events from raw JSON files if needed for data recovery or reprocessing.
 
+--- 
+
 ### Why AWS Lambda is Perfect for This Architecture
 
-#### Overview
 AWS Lambda is a serverless compute service that runs  code in response to events. It automatically manages the underlying compute resources, making it a great fit for the data-driven architecture shown.
 
 ### Key Benefits of AWS Lambda
@@ -112,7 +116,7 @@ Amazon Kinesis Firehose is a fully managed service designed to capture, transfor
 
 ### Why AWS Glue is the Ideal Choice for This Architecture
 
-#### Overview
+
 AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifies the process of preparing and loading data for analytics. It combines the power and flexibility of Apache Spark with the convenience of a managed service, making it an excellent fit for the described architecture.
 
 #### Key Benefits of AWS Glue in This Architecture
@@ -147,9 +151,6 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 8. **Job Scheduling and Orchestration**:
    - **Built-in Scheduler**: Glue provides a built-in job scheduler that allows you to define and manage job schedules, dependencies, and retries, simplifying the orchestration of complex ETL workflows.
    - **Event-driven ETL**: Glue supports event-driven ETL workflows, enabling you to trigger jobs based on events in other AWS services such as S3 or DynamoDB Streams.
-
-9. **Data Lake Formation**:
-   - **AWS Lake Formation Integration**: Glue integrates with AWS Lake Formation, providing additional capabilities for managing, securing, and cataloging data in  data lake. This further simplifies the process of setting up and managing a data lake on AWS.
 
 ### Handling Data Volumes
 
@@ -191,8 +192,6 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 
 ### Why AWS Glue Crawler and AWS Glue Data Catalog are Perfect for This Architecture
 
-#### Key Benefits of AWS Glue Crawler and AWS Glue Data Catalog
-
 - **Automated Metadata Discovery**:
   - **Automatic Schema Detection**: AWS Glue Crawler automatically discovers new data and infers schemas, saving time and reducing manual effort.
   - **Continuous Updates**: Keeps the Data Catalog up-to-date with the latest data changes, ensuring accurate metadata for querying and processing.
@@ -228,8 +227,6 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
   - **High Performance**: Maintains performance and reliability even with large volumes of data, ensuring quick metadata discovery and updates.
 
 ### Why Databricks with Apache Spark is Perfect for This Architecture
-
-#### Key Benefits of Databricks with Apache Spark
 
 - **Unified Analytics Platform**:
   - **Integrated Workspace**: Databricks provides a collaborative environment for data scientists, engineers, and analysts, integrating data processing, analytics, and machine learning.
@@ -283,7 +280,7 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 
 **2. How would you partition the data to ensure good querying performance and scalability?**
 
-### Detailed Partitioning Strategy
+##### Detailed Partitioning Strategy
 
 #### Amazon S3 Partitioning
 Amazon S3 serves as the primary storage layer in  data lake. Proper partitioning of data stored in S3 can significantly enhance query performance and scalability.
@@ -335,8 +332,6 @@ AWS Glue Crawler will automatically recognize these partitions and add them to t
 3. **Glue and Databricks Integration:**
    - Glue Crawler and Catalog ensure that partitions are recognized and optimized for query performance.
    - Databricks utilizes these partitions for advanced analytics, ensuring efficient data processing.
-
-By implementing this detailed partitioning strategy, you ensure that  data lake is well-organized, scalable, and optimized for high-performance querying.
 
 **For detailed code logic, refer to the [Detailed Implementation README.md](./scripts/README.md)**
 
