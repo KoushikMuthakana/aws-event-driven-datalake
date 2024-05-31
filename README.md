@@ -3,6 +3,12 @@
 ## Overview
 This repository contains the code and infrastructure to create a robust, scalable data lake using AWS services. The system is designed to ingest, process, and store events coming from an Amazon Kinesis Data Stream. The architecture ensures high performance, scalability, and efficient querying capabilities, making it ideal for processing both large and small amounts of data.
 
+### Assumptions Considered in Designing the Architecture
+
+- **Lambda Architecture**: The design incorporates both real-time and batch processing to handle data effectively.
+- **Direct Event Ingestion**: Events are assumed to be sent directly from customer devices through microservices.
+- **Daily Batch Processing**: The lowest frequency for batch processing is set to daily, aggregating event data by day.
+
 ### Features
 
 - **Processes Data in Real-Time**: Deduplicates and transforms incoming data immediately to ensure accuracy and relevance.
@@ -408,7 +414,6 @@ Yes, the proposed solution would still be effective even if adding fields or tra
 2. **Metadata Management**: Glue Crawler updates the Data Catalog with schema information from the raw data.
 3. **Advanced Analytics**: Databricks or other analytics tools can directly query and analyze the raw data stored in S3.
 
-Though It required some code changes/config changes in downstream if upstream schema changes or transformations changes but overall architecture design remains same and works efficiently
-
+Although code or configuration changes may be needed in downstream systems if there are changes in upstream schema or transformations, the overall architecture design remains the same and continues to work efficiently.
 
 ---
