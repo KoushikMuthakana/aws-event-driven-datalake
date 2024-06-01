@@ -37,7 +37,7 @@ This repository contains the code and infrastructure to create a robust, scalabl
 5. **Amazon DynamoDB**: Stores unique identifiers for duplicate detection and primary key management.
 6. **Amazon Kinesis Firehose**: Delivers raw data to Amazon S3 in compressed raw JSON format, partitioned by event type,event_subtype and (Year/Month/day).
 7. **Amazon S3 (Compressed Raw JSON Files)**: Serves as the data lake storage, storing raw JSON files in a compressed format for efficient storage and retrieval.
-8. **AWS Glue Crawler**: Scans the raw JSON files in S3 and updates the Glue Data Catalog with table definitions.
+8. **AWS Glue Crawler**: Scans the raw JSON and parquet files in S3 and updates the Glue Data Catalog with table definitions.
 9. **AWS Glue Data Catalog**: Central metadata repository for data discovery and search.
 10. **AWS Glue Job (Apache Spark)**: Transforms raw JSON data into aggregated, partitioned Parquet files, managing incremental loads.
 11. **Amazon S3 (Processed Data Storage)**: Stores the transformed and aggregated Parquet files in partitions.
@@ -297,10 +297,11 @@ I have used the same Partitioning (event_type, sub_event_type, event_date (year,
 1. Raw layer - Easy to replicate specific events on specific days if needed or replay entire state.
 2. Processed layer - Assuming the downstream tasks mostly relay on event types, sub event types and aggregated data (lowest frequency is day).
 
-#### Detailed Partitioning Strategy
+**Detailed Partitioning Strategy**
 
-#### Amazon S3 Partitioning
-Amazon S3 serves as the primary storage layer in  data lake. Proper partitioning of data stored in S3 can significantly enhance query performance and scalability.
+#### Raw and Processed layer Partitioning
+    
+-   Amazon S3 serves as the primary storage layer in  data lake. Proper partitioning of data stored in S3 can significantly enhance query performance and scalability.
 
 ##### Partitioning Structure
 - **Event Type:** Top-level directory that segregates data based on the type of event. This is useful for quickly narrowing down searches to specific event categories.
@@ -390,6 +391,8 @@ I will test individual component by mocking data and validating results individu
 - **Advanced Analytics (Databricks with Apache Spark)**: Test Spark jobs for data processing and analytics, validate batch and streaming outputs, and ensure data flow to Databricks.
 - **Monitoring and Logging (Amazon CloudWatch)**: Test creation of metrics and logs, validate alert configurations, and ensure logs and metrics are correctly sent to CloudWatch.
 - **Event Replay (AWS Lambda)**: Test Lambda functions for event replay, validate retrieval and reprocessing of historical data from S3, and ensure the end-to-end replay process works.
+
+---
 
 **5. How would you ensure the architecture deployed can be replicable across environments?**
 
