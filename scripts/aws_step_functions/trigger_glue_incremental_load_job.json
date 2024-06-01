@@ -1,0 +1,19 @@
+{
+    "Comment": "A Step Function to trigger an Incremental load AWS Glue job with parameters",
+    "StartAt": "Start Glue Job",
+    "States": {
+        "Start Glue Job": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::glue:startJobRun.sync",
+            "Parameters": {
+                "JobName": "incremental-convert-json-to-parquet",
+                "Arguments": {
+                    "--DATABASE_NAME.$": "$.database_name",
+                    "--TABLE_NAME.$": "$.table_name",
+                    "--OUTPUT_PATH.$": "$.output_path"
+                }
+            },
+            "End": true
+        }
+    }
+}

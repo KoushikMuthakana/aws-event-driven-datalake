@@ -44,6 +44,7 @@ This repository contains the code and infrastructure to create a robust, scalabl
 12. **Databricks with Apache Spark**: Processes both batch and streaming data from Amazon S3 for advanced analytics.
 13. **Visualization and ML/AI**: Utilizes the processed data for generating insights through visualization tools and machine learning models.
 14. **Events Replay (AWS Lambda)**: Replays events from raw JSON files if needed for data recovery or reprocessing.
+15. **AWS Step Functions**: Orchestrates and schedules AWS Glue jobs, allowing you to define workflows that manage job dependencies and automate job execution, including triggering Glue jobs at specified times or based on events.
 
 --- 
 
@@ -157,6 +158,13 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 8. **Job Scheduling and Orchestration**:
    - **Built-in Scheduler**: Glue provides a built-in job scheduler that allows you to define and manage job schedules, dependencies, and retries, simplifying the orchestration of complex ETL workflows.
    - **Event-driven ETL**: Glue supports event-driven ETL workflows, enabling you to trigger jobs based on events in other AWS services such as S3 or DynamoDB Streams.
+
+9. **Step Function**:
+   - **Visual Workflow**: AWS Step Functions allows you to build visual workflows to orchestrate multiple AWS services, including Glue, Lambda, and S3, simplifying the coordination of complex ETL processes.
+   - **State Management**: Manages state transitions, error handling, and retries automatically, ensuring robust and reliable workflow execution.
+   - **Event-Driven Execution**: Triggers workflows based on events from other AWS services or custom events, allowing for flexible, event-driven ETL operations.
+   - **Parallel Processing**: Supports parallel execution of tasks, enabling efficient processing of large data volumes and reducing overall processing time.
+
 
 ### Handling Data Volumes
 
@@ -280,7 +288,7 @@ AWS Glue is a fully managed ETL (Extract, Transform, Load) service that simplifi
 - The Kinesis stream captures incoming data, and the Lambda function processes each record, checking for duplicates using DynamoDB.
 - This approach ensures only unique data is stored in S3, with DynamoDB acting as a cache to filter duplicates.
 
-**For detailed code logic, refer to the [Detailed Implementation README.md](./scripts/README.md)**
+**For detailed code logic, refer to the [Detailed Implementation README.md](scripts/aws_lambda_functions/README.md)**
 
 ---
 
@@ -342,7 +350,7 @@ AWS Glue Crawler will automatically recognize these partitions and add them to t
    - Glue Crawler and Catalog ensure that partitions are recognized and optimized for query performance.
    - Databricks utilizes these partitions for advanced analytics, ensuring efficient data processing.
 
-**For detailed code logic, refer to the [Detailed Implementation README.md](./scripts/README.md)**
+**For detailed code logic, refer to the [Detailed Implementation README.md](scripts/aws_lambda_functions/README.md)**
 
 ---
 
