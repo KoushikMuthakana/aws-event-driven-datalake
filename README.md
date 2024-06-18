@@ -398,8 +398,6 @@ I will test individual component by mocking data and validating results individu
 
 To ensure that the architecture can be replicated consistently across different environments such as development, testing, and production, Infrastructure as Code (IaC) practices can be employed. Specifically, this can be achieved through Terraform.
 
-However, I would like to note that while I understand the importance of Terraform in achieving these goals, I have had limited hands-on experience with it. I see this project as an excellent opportunity to upskill myself in Terraform and become more proficient in creating and managing infrastructure using this tool. As a result, I might need some time to get fully confident in scripting and deploying the infrastructure with Terraform.
-
 ---
 
 **6. Would your proposed solution still be the same if the amount of events is 1000 times smaller or bigger?**
